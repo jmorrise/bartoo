@@ -18,8 +18,8 @@ from threading import Timer
 #Constants
 LUBY_BAY_PARK_ID = 70473
 LUBY_BAY_CAMP_AREA = 1280981668
-LENGTH_OF_STAY = 3
-ARRIVAL_DATE = "6/27/2018"
+LENGTH_OF_STAY = 14
+ARRIVAL_DATE = "7/4/2018"
 
 # URLs
 login_url = "https://www.recreation.gov/memberSignInSignUp.do"
@@ -44,6 +44,8 @@ class LubyBot:
         self.site_ids[13] = 1871
         self.site_ids[41] = 1842
         self.site_ids[42] = 1857
+        self.site_ids[1] = 1890
+        self.site_ids[18] = 1867
 
         self.site_number = site_number
         self.arrival_date = ARRIVAL_DATE
@@ -127,7 +129,7 @@ if __name__ == "__main__":
     # Parse input args
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-headless", default="true")
+    parser.add_argument("--headless", default="true")
     parser.add_argument("-site", "--site_number")
     parser.add_argument("-hr", "--hour")
     parser.add_argument("-min", "--minute")

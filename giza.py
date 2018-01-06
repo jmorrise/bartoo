@@ -14,7 +14,7 @@ LUBY_BAY_PARK_ID = 70473
 LENGTH_OF_STAY = 1
 ARRIVAL_DATE = "6/17/2018"
 
-SITE_IDS = {50:1845, 1:1890, 18:1867, 22:1877, 24:1889}
+SITE_IDS = {50:1845, 52:1846, 1:1890, 18:1867, 22:1877, 24:1889, 4:1874, 31:1841}
 
 def get_login_payload(email, password):
 	payload = {"AemailGroup_1733152645":email,
@@ -34,18 +34,20 @@ def get_booking_payload(site, date, length):
 		"arvdate":date}
 	return payload
 
-def write_response_html_to_file(response, filename="output.html"):
-	html = BeautifulSoup(response.text, 'html.parser')
-
+def write_html_to_file(html, filename="output.html"):
 	with open(filename, "w") as file:
 		file.write(str(html))
 
 def extract_num_items_in_cart(soup_html):
 	shop_cart_link_text = soup_html.find("a", {"id":"cartLink"}).text
-	print("'{}' is the shopping cart link text.".format(shop_cart_link_text))
 	num_items = int(shop_cart_link_text[-1])
 	print("There are {} items in the cart.".format(num_items))
 	return num_items
+
+def pretty_print_cookies(session):
+	print("Cookies:")
+	for key, val in session.cookies.get_dict().items():
+		print("  {}: {}".format(key, val))
 
 class GizaBot:
 
@@ -88,9 +90,10 @@ class GizaBot:
 			print("Waiting {} seconds".format(time_delta_seconds))
 			time.sleep(time_delta_seconds-2)
 		now = datetime.now()
-		while (now.hour != self.hour) or (now.minute != self.minute) or (now.second != self.second):
-			time.sleep(0)
+		time_delta_seconds = target_time-now
+		while time_delta_seconds.total_seconds() > 0.05:
 			now = datetime.now()
+			time_delta_seconds = target_time-now
 
 	def book_site(self, email, password):
 		if self.retries < 0:
@@ -113,9 +116,6 @@ class GizaBot:
 				booking_response = s.post(BOOKING_URL, booking_payload)
 
 				print("attempted at {}".format(str(datetime.now())))
-				if (booking_response.status_code != 200):
-					raise Exception("failedRequest","ERROR, %d code received".format(booking_response.status_code))
-
 				html = BeautifulSoup(booking_response.text, 'html.parser')
 				num_items = extract_num_items_in_cart(html)
 				if num_items == 1:
@@ -124,9 +124,8 @@ class GizaBot:
 				else:
 					print("Not reserved")
 
-				
-				
-			# write_response_html_to_file(booking_response, "output2.html")		
+			pretty_print_cookies(s)
+			write_html_to_file(html, "output_site_{}.html".format(self.site))		
 
 
 if __name__ == "__main__":
