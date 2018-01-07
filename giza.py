@@ -11,10 +11,8 @@ BOOKING_URL = "https://www.recreation.gov/switchBookingAction.do?"
 LUBY_FULL_URL = "https://www.recreation.gov/camping/luby-bay/r/campgroundDetails.do?contractCode=NRSO&parkId=70473"
 
 LUBY_BAY_PARK_ID = 70473
-LENGTH_OF_STAY = 1
-ARRIVAL_DATE = "6/17/2018"
 
-SITE_IDS = {50:1845, 52:1846, 1:1890, 18:1867, 22:1877, 24:1889, 4:1874, 31:1841}
+SITE_IDS = {50:1845, 52:1846, 1:1890, 18:1867, 22:1877, 24:1889, 4:1874, 5:1879, 31:1841}
 
 def get_login_payload(email, password):
 	payload = {"AemailGroup_1733152645":email,
@@ -24,13 +22,17 @@ def get_login_payload(email, password):
 			"sbmtCtrl":"combinedFlowSignInKit"}
 	return payload
 
+def get_site_id(site):
+	return SITE_IDS[site] if site in SITE_IDS else site
+
 # Date must be a string in the form of 7/14/2018
 def get_booking_payload(site, date, length):
 	payload = {"contractCode":"NRSO", 
 		"parkId":LUBY_BAY_PARK_ID, 
 		"lengthOfStay":length, 
 		"dateChosen":"true",
-		"siteId":SITE_IDS[site], 
+		# 'site' may be either a site number (e.g. 5) or a site id (e.g. 1879).
+		"siteId":get_site_id(site), 
 		"arvdate":date}
 	return payload
 
@@ -86,9 +88,11 @@ class GizaBot:
 		time_delta_seconds = time_delta.total_seconds()
 		if time_delta_seconds < 0:
 			raise Exception("Wait time is negative.")
+			# Wait for the bulk of the wait time using sleep()
 		if time_delta_seconds > 2:
 			print("Waiting {} seconds".format(time_delta_seconds))
 			time.sleep(time_delta_seconds-2)
+		# Busy waiting for the last 2 seconds
 		now = datetime.now()
 		time_delta_seconds = target_time-now
 		while time_delta_seconds.total_seconds() > 0.05:
@@ -113,9 +117,9 @@ class GizaBot:
 			# Book the site
 			for i in range(self.retries):
 
-				booking_response = s.post(BOOKING_URL, booking_payload)
-
 				print("attempted at {}".format(str(datetime.now())))
+				booking_response = s.post(BOOKING_URL, booking_payload)
+				
 				html = BeautifulSoup(booking_response.text, 'html.parser')
 				num_items = extract_num_items_in_cart(html)
 				if num_items == 1:
