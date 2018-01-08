@@ -12,7 +12,21 @@ LUBY_FULL_URL = "https://www.recreation.gov/camping/luby-bay/r/campgroundDetails
 
 LUBY_BAY_PARK_ID = 70473
 
-SITE_IDS = {50:1845, 52:1846, 1:1890, 18:1867, 22:1877, 24:1889, 4:1874, 5:1879, 31:1841}
+SITE_IDS = { 
+	1:1890, 
+	3:1875,
+	4:1874, 
+	5:1879, 
+	6:1882,
+	8:1878,
+	9:1880,
+	18:1867, 
+	22:1877, 
+	24:1889,
+	31:1841,
+	50:1845, 
+	52:1846,
+}
 
 def get_login_payload(email, password):
 	payload = {"AemailGroup_1733152645":email,
@@ -170,7 +184,7 @@ if __name__ == "__main__":
 	default_hour = 14
 	default_min = 59
 	if args.jordan_default_time == "0":
-		# 14:59:55:.000
+		# 14:59:55.000
 		giza_bot.set_time(default_hour, default_min, 55, 0)
 	elif args.jordan_default_time == "1":
 		# 14:59:56.850
