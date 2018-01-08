@@ -58,16 +58,18 @@ class GizaBot:
 		self.hour = None
 		self.minute = None
 		self.second = None
+		self.millisecond = None
 		self.site = None
 		self.date = None
 		self.length = None
 		self.retries = None
 
-	def set_time(self, hour, minute, second=0):
+	def set_time(self, hour, minute, second=0, millisecond=0):
 		self.has_time = True
 		self.hour = hour
 		self.minute = minute
 		self.second = second
+		self.microsecond = millisecond*1000
 
 	def set_site(self, site):
 		self.site = site
@@ -81,9 +83,13 @@ class GizaBot:
 	def set_retries(self, retries):
 		self.retries = retries
 
+	def print_info(self):
+		print("Attempting to book site {} starting {} for {} days.".format(
+			self.site, self.date, self.length))
+
 	def wait(self):
 		now = datetime.now()
-		target_time = now.replace(hour=self.hour, minute=self.minute, second=self.second, microsecond=0)
+		target_time = now.replace(hour=self.hour, minute=self.minute, second=self.second, microsecond=self.microsecond)
 		time_delta = target_time-now
 		time_delta_seconds = time_delta.total_seconds()
 		if time_delta_seconds < 0:
@@ -95,7 +101,7 @@ class GizaBot:
 		# Busy waiting for the last 2 seconds
 		now = datetime.now()
 		time_delta_seconds = target_time-now
-		while time_delta_seconds.total_seconds() > 0.05:
+		while time_delta_seconds.total_seconds() > 0:
 			now = datetime.now()
 			time_delta_seconds = target_time-now
 
@@ -103,13 +109,14 @@ class GizaBot:
 		if self.retries < 0:
 			raise ValueError("Retries must be > 0")
 
+		self.print_info()
+
 		with requests.Session() as s:
 			login_payload = get_login_payload(email, password)
 			login_response = s.post(LOGIN_URL, login_payload)
 			s.get(LUBY_FULL_URL)
 
 			booking_payload = get_booking_payload(self.site, self.date, self.length)
-			print(booking_payload)
 
 			if self.has_time:
 				self.wait()
@@ -117,7 +124,7 @@ class GizaBot:
 			# Book the site
 			for i in range(self.retries):
 
-				print("attempted at {}".format(str(datetime.now())))
+				print("Attempted at {}".format(str(datetime.now())))
 				booking_response = s.post(BOOKING_URL, booking_payload)
 				
 				html = BeautifulSoup(booking_response.text, 'html.parser')
@@ -142,10 +149,11 @@ if __name__ == "__main__":
 	parser.add_argument("-hr", "--hour")
 	parser.add_argument("-min", "--minute")
 	parser.add_argument("-sec", "--second", default="0")
+	parser.add_argument("-msec", "--millisecond", default="0")
 	parser.add_argument("-e", "--email")
 	parser.add_argument("-p", "--password")
 
-	parser.add_argument("--use_jordan_default_time", action='store_true')
+	parser.add_argument("--jordan_default_time", choices=("0", "1", "2", "3"))
 
 	args = parser.parse_args()
 	if args.site is None or args.date is None or args.length is None or args.email is None or args.password is None:
@@ -158,14 +166,27 @@ if __name__ == "__main__":
 	giza_bot.set_length_of_stay(args.length)
 	giza_bot.set_retries(int(args.retries))
 
-	if args.use_jordan_default_time:
-		# The default time Jordan wants to use: UTC 2:59:55 pm
-		giza_bot.set_time(14, 59, 55)
+	# Default times at UTC 2:59pm to make Jordan's life easier
+	default_hour = 14
+	default_min = 59
+	if args.jordan_default_time == "0":
+		# 14:59:55:.000
+		giza_bot.set_time(default_hour, default_min, 55, 0)
+	elif args.jordan_default_time == "1":
+		# 14:59:56.850
+		giza_bot.set_time(default_hour, default_min, 56, 850)
+	elif args.jordan_default_time == "2":
+		# 14:59:56.900
+		giza_bot.set_time(default_hour, default_min, 56, 900)
+	elif args.jordan_default_time == "3":
+		# 14:59:56.950
+		giza_bot.set_time(default_hour, default_min, 56, 950)
 	elif (args.hour is not None) and (args.minute is not None):
 		hour = int(args.hour)
 		minute = int(args.minute)
 		second = int(args.second)
-		giza_bot.set_time(hour, minute, second)
+		millisecond = int(args.millisecond)
+		giza_bot.set_time(hour, minute, second, millisecond)
 
 	giza_bot.book_site(args.email, args.password)
 
