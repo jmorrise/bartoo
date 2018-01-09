@@ -5,8 +5,8 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 # URLs
-UNIF_URL = "http://www.recreation.gov/unifSearchResults.do"
-LOGIN_URL = "https://www.recreation.gov/memberSignInSignUp.do"
+UNIF_URL = "http://www.recreation.gov/unifSearchResults.do?"
+LOGIN_URL = "https://www.recreation.gov/memberSignInSignUp.do?"
 BOOKING_URL = "https://www.recreation.gov/switchBookingAction.do?"
 LUBY_FULL_URL = "https://www.recreation.gov/camping/luby-bay/r/campgroundDetails.do?contractCode=NRSO&parkId=70473"
 
@@ -20,6 +20,7 @@ SITE_IDS = {
 	6:1882,
 	8:1878,
 	9:1880,
+	10:1868,
 	18:1867, 
 	22:1877, 
 	24:1889,
