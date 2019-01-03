@@ -5,10 +5,12 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 # URLs
-UNIF_URL = "http://www.recreation.gov/unifSearchResults.do?"
-LOGIN_URL = "https://www.recreation.gov/memberSignInSignUp.do?"
-BOOKING_URL = "https://www.recreation.gov/switchBookingAction.do?"
-LUBY_FULL_URL = "https://www.recreation.gov/camping/luby-bay/r/campgroundDetails.do?contractCode=NRSO&parkId=70473"
+BASE_URL = "http://www.recreation.gov/"
+# BASE_URL = "http://localhost:8080/" # For testing
+UNIF_URL = BASE_URL + "unifSearchResults.do?"
+LOGIN_URL = BASE_URL + "memberSignInSignUp.do?"
+BOOKING_URL = BASE_URL + "switchBookingAction.do?"
+LUBY_FULL_URL = BASE_URL + "camping/luby-bay/r/campgroundDetails.do?contractCode=NRSO&parkId=70473"
 
 LUBY_BAY_PARK_ID = 70473
 
