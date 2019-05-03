@@ -119,7 +119,7 @@ def load_previous(filename):
 	try:
 		with open(filename, 'r') as jsonfile:
 			return json.load(jsonfile)
-	except json.JSONDecodeError:
+	except Exception:
 		print("Couldn't load json")
 		return {}
 
