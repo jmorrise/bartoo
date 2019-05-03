@@ -3,6 +3,9 @@ from collections import defaultdict
 from datetime import datetime
 import json
 import itertools
+import argparse
+
+from twilio.rest import Client
 
 
 REQUEST_HEADERS = {"user-agent": "Chrome/71.0.3578.98",
@@ -19,9 +22,9 @@ SHORT_DATE_FORMAT = "%m/%d"
 # Reference point for counting number of days since start of the year
 REF_DATE = datetime(2019,1,1)
 
-LAST_JSON = "available.json"
+DEFAULT_JSON = "available.json"
+DEFAULT_MIN_STAY_LENGTH = 2
 
-MIN_STAY_LENGTH = 2
 
 def to_datetime(datestr):
 	return datetime.strptime(datestr, SHORT_DATE_FORMAT)
@@ -120,11 +123,36 @@ def load_previous(filename):
 		print("Couldn't load json")
 		return {}
 
+def send_sms(message, account_sid, auth_token, phone_from="", phone_to=""):
+	print("Sending sms to {}".format(phone_to))
+	client = Client(account_sid, auth_token)
+	message = client.messages.create(
+                     body=message,
+                     from_=phone_from,
+                     to=phone_to
+                 )
+
 def save_latest(latest, filename):
 	with open(filename, 'w') as jsonfile:
 		json.dump(latest, jsonfile)
 
 if __name__ == "__main__":
+
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-min", "--min_stay_length", default=DEFAULT_MIN_STAY_LENGTH, type=int)
+	parser.add_argument("--json", default=DEFAULT_JSON)
+	parser.add_argument("--enable_sms", action="store_true")
+	parser.add_argument("-sid", "--twilio_sid")
+	parser.add_argument("-auth", "--twilio_auth_token")
+	parser.add_argument("--phone_from")
+	parser.add_argument("--phone_to")
+	args = parser.parse_args()
+	if args.enable_sms and (
+		args.twilio_sid is None or args.twilio_auth_token is None or args.phone_from is None or args.phone_to is None):
+		raise ValueError("If enable_sms is set, must provide Twilio auth token, account sid, and to and from phone numbers.")
+
+	json_file = args.json
+	min_stay_length = args.min_stay_length
 
 	# Get the most recent data
 	jsons = get_jsons()
@@ -132,16 +160,20 @@ if __name__ == "__main__":
 	print_availability(latest_availability)
 
 	# Get the data from the previous run
-	prev_availability = load_previous(LAST_JSON)
+	prev_availability = load_previous(json_file)
 
-	new_availability = get_new_availability_interval(prev_availability, latest_availability, MIN_STAY_LENGTH)
+	new_availability = get_new_availability_interval(prev_availability, latest_availability, min_stay_length)
 	if not new_availability:
 		print("No new availability.")
 	else:
-		print("New availability with {} days or more:".format(MIN_STAY_LENGTH))
+		message = "New availability with {} days or more:".format(min_stay_length)
 		for k,v in sorted(new_availability.items(), key=lambda x: x[0]):
-			print("\tSite {} on {}".format(k, ", ".join(v)))
+			message += "\n  Site {} on {}".format(k, ", ".join(v))
+		print (message)
+
+		if args.enable_sms:
+			send_sms(message, args.twilio_sid, args.twilio_auth_token, phone_from=args.phone_from, phone_to=args.phone_to)
 
 	# Save data to compare against next time
-	save_latest(latest_availability, LAST_JSON)
+	save_latest(latest_availability, json_file)
 
