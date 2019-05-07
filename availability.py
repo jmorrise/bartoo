@@ -22,6 +22,8 @@ SHORT_DATE_FORMAT = "%m/%d"
 # Reference point for counting number of days since start of the year
 REF_DATE = datetime(2019,1,1)
 
+BOOKING_URL = "https://www.recreation.gov/camping/campgrounds/232199/availability"
+
 DEFAULT_JSON = "available.json"
 DEFAULT_MIN_STAY_LENGTH = 2
 
@@ -172,7 +174,8 @@ if __name__ == "__main__":
 		print (message)
 
 		if args.enable_sms:
-			send_sms(message, args.twilio_sid, args.twilio_auth_token, phone_from=args.phone_from, phone_to=args.phone_to)
+			sms_message = message + "\n" + BOOKING_URL
+			send_sms(sms_message, args.twilio_sid, args.twilio_auth_token, phone_from=args.phone_from, phone_to=args.phone_to)
 
 	# Save data to compare against next time
 	save_latest(latest_availability, json_file)
