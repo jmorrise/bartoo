@@ -125,14 +125,17 @@ def load_previous(filename):
 		print("Couldn't load json")
 		return {}
 
-def send_sms(message, account_sid, auth_token, phone_from="", phone_to=""):
-	print("Sending sms to {}".format(phone_to))
+def send_sms(message, account_sid, auth_token, phone_from="", phone_list_to=[]):
 	client = Client(account_sid, auth_token)
-	message = client.messages.create(
-                     body=message,
-                     from_=phone_from,
-                     to=phone_to
-                 )
+	for phone_to in phone_list_to:
+		print("Sending sms to {}".format(phone_to))
+		try:
+			message = client.messages.create(
+	                     body=message,
+	                     from_=phone_from,
+	                     to=phone_to)
+		except Exception as e:
+			print("Unable to send sms to {}: {}".format(phone_to, e))
 
 def save_latest(latest, filename):
 	with open(filename, 'w') as jsonfile:
@@ -147,7 +150,7 @@ if __name__ == "__main__":
 	parser.add_argument("-sid", "--twilio_sid")
 	parser.add_argument("-auth", "--twilio_auth_token")
 	parser.add_argument("--phone_from")
-	parser.add_argument("--phone_to")
+	parser.add_argument("--phone_to", action="append")
 	args = parser.parse_args()
 	if args.enable_sms and (
 		args.twilio_sid is None or args.twilio_auth_token is None or args.phone_from is None or args.phone_to is None):
@@ -175,7 +178,7 @@ if __name__ == "__main__":
 
 		if args.enable_sms:
 			sms_message = message + "\n" + BOOKING_URL
-			send_sms(sms_message, args.twilio_sid, args.twilio_auth_token, phone_from=args.phone_from, phone_to=args.phone_to)
+			send_sms(sms_message, args.twilio_sid, args.twilio_auth_token, phone_from=args.phone_from, phone_list_to=args.phone_to)
 
 	# Save data to compare against next time
 	save_latest(latest_availability, json_file)

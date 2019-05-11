@@ -22,6 +22,17 @@ def test_noAvailableDates():
 	}
 	assert not load_latest_available([json1])
 
+def test_availableInThirdLevel():
+	json1 = {
+		"campsites" : {
+			"25": make_site("025", {
+				"2019-08-01T00:00:00Z" : "Available", "2019-08-02T00:00:00Z" : "Available"
+			})
+		}
+	}
+	assert not load_latest_available([json1])
+
+
 def test_1AvailableDate():
 	site_num = "001"
 	json1 = {
