@@ -130,7 +130,7 @@ def send_sms(message, account_sid, auth_token, phone_from="", phone_list_to=[]):
 	for phone_to in phone_list_to:
 		print("Sending sms to {}".format(phone_to))
 		try:
-			message = client.messages.create(
+			client.messages.create(
 	                     body=message,
 	                     from_=phone_from,
 	                     to=phone_to)
