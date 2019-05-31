@@ -64,7 +64,7 @@ def load_latest_available(jsons):
 				# Not a numbered site
 				continue
 			site_number = campsite["site"]
-			if not in_first_or_second_loop(site_number):
+			if not in_first_loop(site_number):
 				# Not a site we're interested in
 				continue
 			dates = campsite["availabilities"]
