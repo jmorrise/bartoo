@@ -13,8 +13,9 @@ REQUEST_HEADERS = {"user-agent": "Chrome/71.0.3578.98",
 	"authority":"www.recreation.gov",
 	"referrer":"https://www.recreation.gov/camping/campgrounds/232199/availability",
 	"content-type":"application/json;charset=UTF-8"}
-JULY_URL = "https://www.recreation.gov/api/camps/availability/campground/232199/month?start_date=2021-07-01T00:00:00.000Z"
-AUG_URL = "https://www.recreation.gov/api/camps/availability/campground/232199/month?start_date=2021-08-01T00:00:00.000Z"
+BASE_URL = "https://www.recreation.gov/api/camps/availability/campground/232199/month"
+JULY_PARAMS = {"start_date": "2021-07-01T00:00:00.000Z"}
+AUG_PARAMS = {"start_date": "2021-08-01T00:00:00.000Z"}
 # The format used in dates returned by recreation.gov
 WEB_DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 # Easier to read date format.
@@ -47,11 +48,8 @@ def print_availability(d):
 
 def get_jsons():
 	# Get latest data from recreation.gov
-	july_resp = None
-	aug_resp = None
-	with requests.Session() as s:
-		july_resp = s.get(JULY_URL, headers=REQUEST_HEADERS)
-		aug_resp = s.get(AUG_URL, headers=REQUEST_HEADERS)
+	july_resp = requests.get(BASE_URL, params=JULY_PARAMS, headers=REQUEST_HEADERS)
+	aug_resp = requests.get(BASE_URL, params=AUG_PARAMS, headers=REQUEST_HEADERS)
 	return [july_resp.json(), aug_resp.json()]
 
 
@@ -182,4 +180,3 @@ if __name__ == "__main__":
 
 	# Save data to compare against next time
 	save_latest(latest_availability, json_file)
-
