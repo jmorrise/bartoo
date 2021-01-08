@@ -167,7 +167,7 @@ if __name__ == "__main__":
 
 	new_availability = get_new_availability_interval(prev_availability, latest_availability, min_stay_length)
 	if not new_availability:
-		print("No new availability.")
+		print("No new availability with at least {} days.".format(min_stay_length))
 	else:
 		message = "New availability with {} days or more:".format(min_stay_length)
 		for k,v in sorted(new_availability.items(), key=lambda x: x[0]):
