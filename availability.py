@@ -152,7 +152,7 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	if args.enable_sms and (
 		args.twilio_sid is None or args.twilio_auth_token is None or args.phone_from is None or args.phone_to is None):
-		raise ValueError("If enable_sms is set, must provide Twilio auth token, account sid, and to and from phone numbers.")
+		raise ValueError("If --enable_sms is set, must provide --twilio_auth_token, --twilio_sid, --phone_from and --phone_to.")
 
 	json_file = args.json
 	min_stay_length = args.min_stay_length
