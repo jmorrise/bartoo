@@ -188,7 +188,7 @@ if __name__ == "__main__":
         parser.add_argument("--pushover_api_token")
         parser.add_argument("--test_email", default=False, type=bool)
         parser.add_argument("--test_sms", default=False, type=bool)
-        parser.add_argument("--test_pushoever", default=False, type=bool)
+        parser.add_argument("--test_pushover", default=False, type=bool)
         args = parser.parse_args()
         if args.enable_sms and (
                 args.twilio_sid is None or args.twilio_auth_token is None or args.phone_from is None or args.phone_to is None):
