@@ -30,7 +30,7 @@ REF_DATE = datetime(2025,1,1)
 BOOKING_URL = "https://www.recreation.gov/camping/campgrounds/232199/availability"
 
 DEFAULT_JSON = "available.json"
-DEFAULT_MIN_STAY_LENGTH = 2
+DEFAULT_MIN_STAY_LENGTH = 1
 
 
 def to_datetime(datestr):
@@ -156,6 +156,15 @@ Subject: {}
                         except Exception as e:
                                 print("Unable to send email to {0}: {1}".format(email_to, e))
 
+def send_pushover(message, user_key, api_token):
+        try:
+                response = requests.post("https://api.pushover.net/1/messages.json", data={"token": api_token, "user": user_key, "message": message})
+                response.raise_for_status()
+                print("Pushover notification sent!")
+        except Exception as e:
+                print(f"Error sending Pushover notification: {e}")
+
+
 def save_latest(latest, filename):
         with open(filename, 'w') as jsonfile:
                 json.dump(latest, jsonfile)
@@ -174,14 +183,20 @@ if __name__ == "__main__":
         parser.add_argument("--email_from")
         parser.add_argument("--email_from_password")
         parser.add_argument("--email_to", action="append")
+        parser.add_argument("--enable_pushover", action="store_true")
+        parser.add_argument("--pushover_user_key")
+        parser.add_argument("--pushover_api_token")
         parser.add_argument("--test_email", default=False, type=bool)
         parser.add_argument("--test_sms", default=False, type=bool)
+        parser.add_argument("--test_pushoever", default=False, type=bool)
         args = parser.parse_args()
         if args.enable_sms and (
                 args.twilio_sid is None or args.twilio_auth_token is None or args.phone_from is None or args.phone_to is None):
                 raise ValueError("If --enable_sms is set, must provide --twilio_auth_token, --twilio_sid, --phone_from and --phone_to.")
         if args.enable_email and (args.email_from is None or args.email_to is None or args.email_from_password is None):
                 raise ValueError("If --enable_email is set, must provide --email_from, --email_from_password and --email_to.")
+        if args.enable_pushover and (args.pushover_user_key is None or args.pushover_api_token is None):
+                raise ValueError("If --enable_pushover is set, must provide --pushover_user_key and --pushover_api_token.")
 
         json_file = args.json
         min_stay_length = args.min_stay_length
@@ -211,6 +226,10 @@ if __name__ == "__main__":
                         subject = "New availability on {}".format(", ".join(new_availability.values()))
                         body = message + "\n\nReserve sites at " + BOOKING_URL
                         send_email(subject, body, args.email_from, args.email_from_password, email_list_to=args.email_to)
+
+                if args.enable_pushover:
+                        push_message = message + "\n" + BOOKING_URL
+                        send_pushover(push_message, args.pushover_user_key, args.pushover_api_token)
 
         # Save data to compare against next time
         save_latest(latest_availability, json_file)
