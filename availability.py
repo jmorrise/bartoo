@@ -240,4 +240,7 @@ if __name__ == "__main__":
 
         if (args.test_sms):
             # Send a test message to the first phone number
-            send_sms("TEST SMS",args.twilio_sid, args.twilio_auth_token, phone_from=args.phone_from, phone_list_to=args.phone_to[:1])  
+            send_sms("TEST SMS",args.twilio_sid, args.twilio_auth_token, phone_from=args.phone_from, phone_list_to=args.phone_to[:1])
+
+        if (args.test_pushover):
+            send_pushover("Hello Pushover from Bartoo! This is a test.",args.pushover_user_key, args.pushover_api_token)  
