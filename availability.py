@@ -46,7 +46,6 @@ def in_first_or_second_loop(site_number):
         return int(site_number) <= 24
 
 def print_availability(d):
-        print("Latest availability:")
         for k,v in sorted(d.items(), key=lambda x: x[0]):
                 print("Site {} is available on {}".format(k,", ".join(v)))
 
