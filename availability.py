@@ -27,7 +27,7 @@ SHORT_DATE_FORMAT = "%m/%d"
 # Reference point for counting number of days since start of the year
 REF_DATE = datetime(2025,1,1)
 
-BOOKING_URL = "https://www.recreation.gov/camping/campgrounds/232199/availability"
+BOOKING_URL = "https://www.recreation.gov/camping/campgrounds/232199"
 
 DEFAULT_JSON = "available.json"
 DEFAULT_MIN_STAY_LENGTH = 1
