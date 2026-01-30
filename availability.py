@@ -17,15 +17,15 @@ REQUEST_HEADERS = {"user-agent": "Chrome/71.0.3578.98",
         "referrer":"https://www.recreation.gov/camping/campgrounds/232199/availability",
         "content-type":"application/json;charset=UTF-8"}
 BASE_URL = "https://www.recreation.gov/api/camps/availability/campground/232199/month"
-JUNE_PARAMS = {"start_date": "2025-06-01T00:00:00.000Z"}
-JULY_PARAMS = {"start_date": "2025-07-01T00:00:00.000Z"}
-AUG_PARAMS = {"start_date": "2025-08-01T00:00:00.000Z"}
+JUNE_PARAMS = {"start_date": "2026-06-01T00:00:00.000Z"}
+JULY_PARAMS = {"start_date": "2026-07-01T00:00:00.000Z"}
+AUG_PARAMS = {"start_date": "2026-08-01T00:00:00.000Z"}
 # The format used in dates returned by recreation.gov
 WEB_DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 # Easier to read date format.
 SHORT_DATE_FORMAT = "%m/%d"
 # Reference point for counting number of days since start of the year
-REF_DATE = datetime(2025,1,1)
+REF_DATE = datetime(2026,1,1)
 
 BOOKING_URL = "https://www.recreation.gov/camping/campgrounds/232199"
 
